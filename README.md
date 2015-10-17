@@ -18,3 +18,10 @@ In order to remove the uploaded zip file, the role configured in your Lambda fun
 	]
 }
 ```
+
+## Packaging for deployment
+Maven is already configured to package the .jar file correctly for deployment into Lambda. Just run
+```
+mvn clean package
+```
+The packaged file will be present in your `target/` folder.
