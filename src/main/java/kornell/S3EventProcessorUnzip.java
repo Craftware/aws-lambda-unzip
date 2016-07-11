@@ -10,12 +10,15 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.io.FilenameUtils;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.event.S3EventNotification.S3EventNotificationRecord;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -66,7 +69,7 @@ public class S3EventProcessorUnzip implements RequestHandler<S3Event, String> {
                     InputStream is = new ByteArrayInputStream(outputStream.toByteArray());
                     ObjectMetadata meta = new ObjectMetadata();
                     meta.setContentLength(outputStream.size());
-                    s3Client.putObject(srcBucket, fileName, is, meta);
+                    s3Client.putObject(srcBucket, FilenameUtils.getFullPath(srcKey) + fileName, is, meta);
                     is.close();
                     outputStream.close();
                     entry = zis.getNextEntry();
@@ -74,7 +77,10 @@ public class S3EventProcessorUnzip implements RequestHandler<S3Event, String> {
                 zis.closeEntry();
                 zis.close();
                 
-                //delete zip file when done
+                //move zip file to 'uploads/' when done
+                String archivePath = FilenameUtils.getFullPath(srcKey) + "uploads/" + FilenameUtils.getName(srcKey);
+                System.out.println("Archiving to " + archivePath);
+                s3Client.copyObject(new CopyObjectRequest(srcBucket, srcKey, srcBucket, archivePath));
                 s3Client.deleteObject(new DeleteObjectRequest(srcBucket, srcKey));
                 System.out.println("Deleted zip file " + srcBucket + "/" + srcKey);
             }
