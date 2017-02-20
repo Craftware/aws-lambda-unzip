@@ -36,12 +36,17 @@
   	<dependency>
   		<groupId>com.amazonaws</groupId>
   		<artifactId>aws-lambda-java-core</artifactId>
-  		<version>1.0.0</version>
+  		<version>1.1.0</version>
   	</dependency>
   	  	<dependency>
   		<groupId>com.amazonaws</groupId>
   		<artifactId>aws-lambda-java-events</artifactId>
   		<version>1.1.0</version>
   	</dependency>
+  	<dependency>
+   		<groupId>commons-io</groupId>
+   		<artifactId>commons-io</artifactId>
+   		<version>2.5</version>
+   	</dependency>
   </dependencies>
 </project>

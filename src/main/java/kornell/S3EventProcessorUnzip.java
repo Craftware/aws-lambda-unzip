@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.io.FilenameUtils;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
@@ -66,7 +68,7 @@ public class S3EventProcessorUnzip implements RequestHandler<S3Event, String> {
                     InputStream is = new ByteArrayInputStream(outputStream.toByteArray());
                     ObjectMetadata meta = new ObjectMetadata();
                     meta.setContentLength(outputStream.size());
-                    s3Client.putObject(srcBucket, fileName, is, meta);
+                    s3Client.putObject(srcBucket, FilenameUtils.getFullPath(srcKey), is, meta);
                     is.close();
                     outputStream.close();
                     entry = zis.getNextEntry();
