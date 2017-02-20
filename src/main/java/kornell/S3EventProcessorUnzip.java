@@ -68,7 +68,7 @@ public class S3EventProcessorUnzip implements RequestHandler<S3Event, String> {
                     InputStream is = new ByteArrayInputStream(outputStream.toByteArray());
                     ObjectMetadata meta = new ObjectMetadata();
                     meta.setContentLength(outputStream.size());
-                    s3Client.putObject(srcBucket, FilenameUtils.getFullPath(srcKey), is, meta);
+                    s3Client.putObject(srcBucket, FilenameUtils.getFullPath(srcKey) + fileName, is, meta);
                     is.close();
                     outputStream.close();
                     entry = zis.getNextEntry();
