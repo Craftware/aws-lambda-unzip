@@ -59,7 +59,8 @@ public class S3EventProcessorUnzip implements RequestHandler<S3Event, String> {
 
                 while(entry != null) {
                     String fileName = entry.getName();
-                    System.out.println("Extracting " + fileName + ", compressed: " + entry.getCompressedSize() + " bytes, extracted: " + entry.getSize() + " bytes");
+                    String mimeType = FileMimeType.fromExtension(FilenameUtils.getExtension(fileName)).mimeType();
+                    System.out.println("Extracting " + fileName + ", compressed: " + entry.getCompressedSize() + " bytes, extracted: " + entry.getSize() + " bytes, mimetype: " + mimeType);
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                     int len;
                     while ((len = zis.read(buffer)) > 0) {
@@ -68,6 +69,7 @@ public class S3EventProcessorUnzip implements RequestHandler<S3Event, String> {
                     InputStream is = new ByteArrayInputStream(outputStream.toByteArray());
                     ObjectMetadata meta = new ObjectMetadata();
                     meta.setContentLength(outputStream.size());
+                    meta.setContentType(mimeType);
                     s3Client.putObject(srcBucket, FilenameUtils.getFullPath(srcKey) + fileName, is, meta);
                     is.close();
                     outputStream.close();
@@ -77,8 +79,9 @@ public class S3EventProcessorUnzip implements RequestHandler<S3Event, String> {
                 zis.close();
                 
                 //delete zip file when done
+                System.out.println("Deleting zip file " + srcBucket + "/" + srcKey + "...");
                 s3Client.deleteObject(new DeleteObjectRequest(srcBucket, srcKey));
-                System.out.println("Deleted zip file " + srcBucket + "/" + srcKey);
+                System.out.println("Done deleting");
             }
             return "Ok";
         } catch (IOException e) {
